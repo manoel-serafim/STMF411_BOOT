@@ -1,3 +1,46 @@
+/**
+ * @file    startup.c
+ * @brief   Startup file for STM32F411CEU6, including vector table and interrupt handlers.
+ *          This file defines the initialization code, interrupt vector table, and default
+ *          handlers for all exceptions and interrupts. It also includes routines to copy
+ *          initialized data from FLASH to SRAM, zero-fill the BSS section, and initialize
+ *          the system before transferring control to the main application.
+ * 
+ * @note    The interrupt vector table is initialized with default handlers which are weakly
+ *          bound to the default interrupt handler, allowing for custom implementations to be
+ *          added in separate source files. The system stack pointer is initialized, and the
+ *          vector table is set up at startup.
+ * 
+ * @processor    ARM Cortex-M4
+ * @microcontroller STM32F411CEU6
+ * @version   1.0
+ * @date      2025-01-18
+ * 
+ * @section VectorTable
+ * The vector table contains the reset vector, exception vectors, and IRQ handlers.
+ * It is placed at the beginning of memory and is used by the processor to determine
+ * the appropriate handler for each exception or interrupt.
+ * 
+ * @section DataInitialization
+ * This file includes assembly routines to copy the .data section from FLASH to SRAM
+ * and zero the .bss section before transferring control to the main program.
+ *
+ * @section InterruptHandlers
+ * The interrupt vector table contains weak references to the interrupt handlers.
+ * Default implementations for common interrupts (such as HardFault and NMI) are provided.
+ * These handlers simply enter an infinite loop, preserving the system state for debugging.
+ * Custom interrupt handler implementations can be added by defining them in the user code.
+ *
+ *
+ * @copyright  (C) 2025, Manoel Augusto de Souza Serafim
+ *             All rights reserved.
+ * 
+ * @author     Manoel Serafim
+ * @email      manoel.serafim@proton.me
+ * @date       2025-01-15
+ * @github     https://github.com/manoel-serafim
+ */
+
 .global reset_
 .global vector_table__
 .cpu cortex-m4
