@@ -1,4 +1,3 @@
-
 .global reset_
 .global vector_table__
 .cpu cortex-m4
@@ -323,37 +322,55 @@ loop__:
   b loop__
   .size default_, .-default_
 
-.thumb_func
+  .section .text.reset_
+  .type reset_, %function
 reset_:
   ldr   r0, =_estack
   mov   sp, r0
 /*bl  rcc_init (Init Cache, PLL , etc)*/  
 
+
+/**
+ * @brief Copy initialized .data section from FLASH to SRAM.
+ * @details This assembly routine initializes the .data section in SRAM by copying
+ *          its values from the corresponding region in FLASH. The .data section holds
+ *          initialized global and static variables that must persist with specific
+ *          initial values at runtime.
+ *  @note If there is no use of initiallized global values, this may break the initialization code. 
+ *        Still, no unreallistic overhead is added considering that the application established here will use it
+ */
   ldr r0, =_sdata       
   ldr r1, =_edata       
   ldr r2, =_sidata
-  sub r3, r1, r0      
+  sub r3, r1, r0
 
 copy_flash__:
   sub r3, r3, #4
   ldr r4, [r2, r3]  
   str r4, [r0, r3]
   
-  bcc copy_flash__     
+  bne copy_flash__     
 
 
+/**
+ * @brief Zero fills the .bss section in SRAM.
+ * @details This routine initializes the .bss section in SRAM by setting all its contents to 0. 
+ *          The .bss section is used to store uninitialized global and static variables, which are 
+ *          automatically initialized to zero during program startup. This ensures that all uninitialized 
+ *          variables in the .bss section are properly set to zero before the program begins execution.
+ * @note Variables to be initiallized with zero go here
+ */
   ldr r0, =_sbss
   ldr r1, =_ebss
   movs r2, #0
+  sub r3, r1, r0
 
 zero_bss__:
-  str  r2, [r0]
-  add r0, #4
-  cmp r0, r1
-  bcc zero_bss__
+  sub r3, r3, #4
+  str  r2, [r0, r3]
+  
+  bne zero_bss__
+
 
   bl startup
   b .
-
-
-
